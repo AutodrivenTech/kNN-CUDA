@@ -360,16 +360,20 @@ int main(void) {
     nvml_monitor_stop();
     double power1 = integral_power_consuming();
     printf("average power usage is %.5f", power1);
-    usleep(3);
+    sleep(3);
     nvml_monitor_start();
     test(ref, ref_nb, query, query_nb, dim, k, knn_dist, knn_index, &knn_cuda_texture, "knn_cuda_texture", 10000); 
+    nvml_monitor_stop();
     double power2 = integral_power_consuming();
     printf("average power usage is %.5f", power2);
-    usleep(3);
+    sleep(3);
     nvml_monitor_start();
     test(ref, ref_nb, query, query_nb, dim, k, knn_dist, knn_index, &knn_cublas,       "knn_cublas",       10000); 
+    nvml_monitor_stop();
     double power3 = integral_power_consuming();
     printf("average power usage is %.5f", power3);
+    nvml_api_close();
+    
 
     // Deallocate memory 
     free(ref);

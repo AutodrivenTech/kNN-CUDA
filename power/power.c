@@ -42,7 +42,7 @@ void nvml_api_init()
         exit(1);
     }
     if(device_count - 1 < gpu_index){
-        fprintf(stderr, "GPU index %d out of device_count %d", gpu_index, device_count);
+        fprintf(stderr, "GPU index %d out of device_count %d\n", gpu_index, device_count);
         exit(1);
     }
 
@@ -80,7 +80,7 @@ void nvml_api_init()
                 fprintf(stderr, "Failed to shutdown NVML: %s\n", nvmlErrorString(result));
             exit(1);
         }
-        fprintf(stdout, "nvml_api_init() success!");
+        fprintf(stdout, "nvml_api_init() success!\n");
         fprintf(stdout, "%d. %s [%s]\n", gpu_index, name, pci.busId);
 }
 
