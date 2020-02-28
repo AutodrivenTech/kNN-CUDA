@@ -3,13 +3,13 @@
 #define TIME_STEP  10000
 #define GPU_INDEX 0
 
-nvmlDevice_t device;
+static nvmlDevice_t device;
 unsigned int data[MAX_NUM_OF_DATA];
-unsigned int time_step = TIME_STEP;
-unsigned int gpu_index = GPU_INDEX;
+static unsigned int time_step = TIME_STEP;
+static unsigned int gpu_index = GPU_INDEX;
 
-pthread_t power_poll_thread;
-bool poll_thread_status = false;
+static pthread_t power_poll_thread;
+static bool poll_thread_status = false;
 
 
 void nvml_api_init()
