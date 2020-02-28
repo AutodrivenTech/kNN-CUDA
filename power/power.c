@@ -151,8 +151,8 @@ int main()
             break;
         }
     }
-    fprintf(stdout, "The data count is %d", count);
+    fprintf(stdout, "The data count is %d\n", count);
     double power = integral_power_consuming();
-    fprintf(stdout, "the power consumping is %0.5f", power);
+    fprintf(stdout, "the power consumping is %0.5f\n", power);
     return 0;
 }
