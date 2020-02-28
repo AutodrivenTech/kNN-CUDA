@@ -131,7 +131,7 @@ double integral_power_consuming(){
         if(!data[count]){
             break;
         }
-        result += 0.01 * (double)data[count] / 1000.0;
+        result += 1.0 / (double)time_step * (double)data[count] / 1000.0;
     }
     return result / (double)count;
 }
@@ -140,7 +140,7 @@ int main()
 {
     nvml_api_init(0);
     nvml_monitor_start();
-    sleep(14);
+    sleep(300);
     nvml_monitor_stop();
     nvml_api_close();
 
@@ -151,5 +151,7 @@ int main()
         }
     }
     fprintf(stdout, "The data count is %d", count);
+    double power = integral_power_consuming();
+    fprintf(stdout, "the power consumping is %0.5f", power);
     return 0;
 }
