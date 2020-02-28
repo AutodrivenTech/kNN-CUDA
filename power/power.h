@@ -47,4 +47,4 @@ void *nvml_power_monitor(void* ptr);
  * @param result monitor return datas(in mW)
  * @param time_step time gap of each step
  **/
-unsigned int integral_power_consuming();
+double integral_power_consuming();

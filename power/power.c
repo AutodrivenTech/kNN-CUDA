@@ -124,8 +124,16 @@ void nvml_monitor_stop(){
     pthread_join(power_poll_thread, NULL);
 }
 
-void integral_power_consuming(){
-    
+double integral_power_consuming(){
+    unsigned int count;
+    double result;
+    for(count = 0; count < MAX_NUM_OF_DATA; count++){
+        if(!data[count]){
+            break;
+        }
+        result += 0.01 * (double)data[count] / 1000.0;
+    }
+    return result / (double)count;
 }
 
 int main()
