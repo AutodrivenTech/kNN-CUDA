@@ -127,13 +127,14 @@ void nvml_monitor_stop(){
 double integral_power_consuming(){
     unsigned int count;
     double result;
+    double real_time_step = 1.2 * (double)(time_step);
     for(count = 0; count < MAX_NUM_OF_DATA; count++){
         if(!data[count]){
             break;
         }
-        result += (double)time_step / 1000000.0 * (double)data[count];
+        result += real_time_step / 1000000.0 * (double)data[count];
     }
-    return result / (double)count * 1000.0 / (double)time_step;
+    return result / (double)count * 1000.0 / real_time_step;
 }
 
 int main()
