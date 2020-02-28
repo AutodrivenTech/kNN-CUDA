@@ -1,14 +1,20 @@
+NVCC := /usr/local/cuda/bin/nvcc
 NVML_LIB := /usr/local/cuda/lib64
 NVML_INCLUDE := /usr/local/cuda/include
-LDFLAGS := -lnvidia-ml -L $(NVML_LIB) -pthread
-CFLAGS := -I $(NVML_INCLUDE)
+LDFLAGS := -L$(NVML_LIB) -lnvidia-ml -lcuda -lcudart  -pthread
+CFLAGS := -I $(NVML_INCLUDE) -I /usr/local/cuda/samples/common/inc -I.
+OTHER_FLAGS := 
 
-power: power.o
-	$(CC)  $< -o $@ $(LDFLAGS)
+# test.out: power.o test.o
+# 	$(CC) -o $@ $(OTHER_FLAGS) $(CFLAGS) $< $(LDFLAGS)
+
+# test.o:
+# 	$(NVCC) -c $(CFLAGS) -o $@ test.cu
 
 power.o:
-	$(CC) -c $(CFLAGS) -o $@ power.c
+	$(NVCC) -c $(CFLAGS) -o $@ power.c
 
 clean:
 	-@rm -f power.o
-	-@rm -f power
+	-@rm -f test.o
+	-@rm -rf test.out

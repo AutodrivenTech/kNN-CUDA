@@ -1,15 +1,26 @@
-#include "power.h"
+// #include "power.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+#include <sys/time.h>
+#include <pthread.h>
+#include <unistd.h>
+
+#include <nvml.h>
+
 #define MAX_NUM_OF_DATA 10000000
 #define TIME_STEP  10000
 #define GPU_INDEX 0
 
-static nvmlDevice_t device;
+nvmlDevice_t device;
 unsigned int data[MAX_NUM_OF_DATA];
-static unsigned int time_step = TIME_STEP;
-static unsigned int gpu_index = GPU_INDEX;
+unsigned int time_step = TIME_STEP;
+unsigned int gpu_index = GPU_INDEX;
 
-static pthread_t power_poll_thread;
-static bool poll_thread_status = false;
+pthread_t power_poll_thread;
+bool poll_thread_status = false;
 
 
 void nvml_api_init()
@@ -137,22 +148,22 @@ double integral_power_consuming(){
     return result / (double)count * 1000.0 / real_time_step;
 }
 
-int main()
-{
-    nvml_api_init(0);
-    nvml_monitor_start();
-    sleep(10);
-    nvml_monitor_stop();
-    nvml_api_close();
+// int main()
+// {
+//     nvml_api_init(0);
+//     nvml_monitor_start();
+//     sleep(10);
+//     nvml_monitor_stop();
+//     nvml_api_close();
 
-    unsigned int count;
-    for(count =0; count <= MAX_NUM_OF_DATA; count++){
-        if(!data[count]){
-            break;
-        }
-    }
-    fprintf(stdout, "The data count is %d\n", count);
-    double power = integral_power_consuming();
-    fprintf(stdout, "the power consumping is %0.5f\n", power);
-    return 0;
-}
+//     unsigned int count;
+//     for(count =0; count <= MAX_NUM_OF_DATA; count++){
+//         if(!data[count]){
+//             break;
+//         }
+//     }
+//     fprintf(stdout, "The data count is %d\n", count);
+//     double power = integral_power_consuming();
+//     fprintf(stdout, "the power consumping is %0.5f\n", power);
+//     return 0;
+// }

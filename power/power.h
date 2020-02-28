@@ -1,13 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-
-#include <sys/time.h>
-#include <pthread.h>
-#include <unistd.h>
-
-#include <nvml.h>
-
 /**
  * Init the nvml library and make sure
  * the GPU support management API.
