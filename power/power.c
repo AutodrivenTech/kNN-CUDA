@@ -140,7 +140,7 @@ int main()
 {
     nvml_api_init(0);
     nvml_monitor_start();
-    sleep(300);
+    sleep(10);
     nvml_monitor_stop();
     nvml_api_close();
 
