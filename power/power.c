@@ -89,15 +89,16 @@ void *nvml_power_monitor(void* ptr){
         pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, 0);
         result = nvmlDeviceGetPowerManagementMode(device, &pmmode);
         if(NVML_SUCCESS != result){
-            fprintf(stderr, "error : %s\n", nvmlErrorString(result));
+            fprintf(stderr, "error power mode : %s\n", nvmlErrorString(result));
         }
         if(pmmode == NVML_FEATURE_ENABLED){
             result = nvmlDeviceGetPowerUsage(device, &power_level);
             if(NVML_SUCCESS != result){
-                fprintf(stderr, "error : %s\n", nvmlErrorString(result));
+                fprintf(stderr, "error get power : %s\n", nvmlErrorString(result));
             }
         }
         data[count] = power_level;
+        fprintf(stdout, "power %d\n", power_level);
         count++;
         pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, 0);
         usleep(time_step);
@@ -128,6 +129,6 @@ int main()
     nvml_monitor_stop();
     nvml_api_close();
 
-    fprintf(stdout, "The data count is %d", sizeof(data)/sizeof(unsigned int));
+    fprintf(stdout, "The data count is %ld", sizeof(data)/sizeof(unsigned int));
     return 0;
 }
