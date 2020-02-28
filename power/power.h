@@ -13,7 +13,7 @@
  * the GPU support management API.
  * @param
  **/
-void nvml_api_init(unsigned int gpu_index);
+void nvml_api_init();
 
 /**
  * Start the monitor

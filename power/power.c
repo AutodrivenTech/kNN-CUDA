@@ -1,16 +1,18 @@
 #include "power.h"
 #define MAX_NUM_OF_DATA 10000000
 #define TIME_STEP  10000
+#define GPU_INDEX 0
 
 nvmlDevice_t device;
 unsigned int data[MAX_NUM_OF_DATA];
 unsigned int time_step = TIME_STEP;
+unsigned int gpu_index = GPU_INDEX;
 
 pthread_t power_poll_thread;
 bool poll_thread_status = false;
 
 
-void nvml_api_init(unsigned int gpu_index)
+void nvml_api_init()
 {
     nvmlReturn_t result;
     unsigned int device_count;
@@ -87,6 +89,7 @@ void *nvml_power_monitor(void* ptr){
 
     while (poll_thread_status){
         pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, 0);
+        result = nvmlDeviceGetHandleByIndex(gpu_index, &device);
         result = nvmlDeviceGetPowerManagementMode(device, &pmmode);
         if(NVML_SUCCESS != result){
             fprintf(stderr, "error power mode : %s\n", nvmlErrorString(result));
