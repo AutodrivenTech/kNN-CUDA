@@ -101,7 +101,7 @@ void *nvml_power_monitor(void* ptr){
             }
         }
         data[count] = power_level;
-        fprintf(stdout, "power %d\n", power_level);
+        // fprintf(stdout, "power %d\n", power_level);
         count++;
         pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, 0);
         usleep(time_step);
@@ -132,6 +132,12 @@ int main()
     nvml_monitor_stop();
     nvml_api_close();
 
-    fprintf(stdout, "The data count is %ld", sizeof(data)/sizeof(unsigned int));
+    unsigned int count;
+    for(count =0; count <= MAX_NUM_OF_DATA; count++){
+        if(!data[count]){
+            break;
+        }
+    }
+    fprintf(stdout, "The data count is %d", count);
     return 0;
 }
