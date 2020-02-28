@@ -131,7 +131,7 @@ double integral_power_consuming(){
         if(!data[count]){
             break;
         }
-        result += 1.0 / (double)time_step * (double)data[count] / 1000.0;
+        result += (double)time_step * (double)data[count];
     }
     return result / (double)count;
 }
