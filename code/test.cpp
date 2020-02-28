@@ -270,6 +270,8 @@ bool test(const float * ref,
 
     // Display report
     if (precision_accuracy >= min_accuracy && index_accuracy >= min_accuracy ) {
+        // printf("Precision_accuray: %f")
+        //!! TODO: output precision
         printf("PASSED in %8.5f seconds (averaged over %3d iterations)\n", elapsed_time / nb_iterations, nb_iterations);
     }
     else {
@@ -311,6 +313,7 @@ int main(void) {
     }
 
     // Allocate input points and output k-NN distances / indexes
+    //!!! TODO: change def
     float * ref        = (float*) malloc(ref_nb   * dim * sizeof(float));
     float * query      = (float*) malloc(query_nb * dim * sizeof(float));
     float * knn_dist   = (float*) malloc(query_nb * k   * sizeof(float));
@@ -327,6 +330,7 @@ int main(void) {
     }
 
     // Initialize reference and query points with random values
+    // !!!TODO: change 
     initialize_data(ref, ref_nb, query, query_nb, dim);
 
     // Compute the ground truth k-NN distances and indexes for each query point
@@ -341,6 +345,13 @@ int main(void) {
 
     // Test all k-NN functions
     printf("TESTS\n");
+    // ref -> dataset : dim * dataset_num
+    // ref_nb -> num
+    // query -> queryset: dim * query_num
+    // ..
+    // dim -> dim = 3
+    //  k = 5
+    // knn_dist 
     test(ref, ref_nb, query, query_nb, dim, k, knn_dist, knn_index, &knn_c,            "knn_c",              2);
     test(ref, ref_nb, query, query_nb, dim, k, knn_dist, knn_index, &knn_cuda_global,  "knn_cuda_global",  10000); 
     test(ref, ref_nb, query, query_nb, dim, k, knn_dist, knn_index, &knn_cuda_texture, "knn_cuda_texture", 10000); 
