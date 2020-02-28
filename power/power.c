@@ -131,9 +131,9 @@ double integral_power_consuming(){
         if(!data[count]){
             break;
         }
-        result += (double)time_step * (double)data[count];
+        result += (double)time_step / 1000000.0 * (double)data[count];
     }
-    return result / (double)count;
+    return result / (double)count * 1000.0 / (double)time_step;
 }
 
 int main()
