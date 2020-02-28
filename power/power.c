@@ -124,11 +124,15 @@ void nvml_monitor_stop(){
     pthread_join(power_poll_thread, NULL);
 }
 
+void integral_power_consuming(){
+    
+}
+
 int main()
 {
     nvml_api_init(0);
     nvml_monitor_start();
-    sleep(12);
+    sleep(14);
     nvml_monitor_stop();
     nvml_api_close();
 
