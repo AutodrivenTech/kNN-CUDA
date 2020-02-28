@@ -103,8 +103,11 @@ int main()
         exit(0);
     }
     if(pmmode == NVML_FEATURE_ENABLED){
-        result = nvmlDeviceGetPowerUsage(device, &power_level);
-        printf("power level is %.3lf\n", (power_level)/1000.0);
+		while(1){
+			result = nvmlDeviceGetPowerUsage(device, &power_level);
+			printf("%.4lf\n", (power_level)/1000.0);
+			usleep(10000);	
+		}
     }
         
     result = nvmlShutdown();
