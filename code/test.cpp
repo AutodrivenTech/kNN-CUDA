@@ -353,25 +353,34 @@ int main(void) {
     // dim -> dim = 3
     //  k = 5
     // knn_dist 
-    test(ref, ref_nb, query, query_nb, dim, k, knn_dist, knn_index, &knn_c,            "knn_c",              2);
     nvml_api_init();
+    nvml_monitor_start();
+    test(ref, ref_nb, query, query_nb, dim, k, knn_dist, knn_index, &knn_c,            "knn_c",              2);
+    nvml_monitor_stop();
+    double static_power = integral_power_consuming();
+    printf("static power is %.5f\n", static_power);
+    sleep(3);
+
     nvml_monitor_start();
     test(ref, ref_nb, query, query_nb, dim, k, knn_dist, knn_index, &knn_cuda_global,  "knn_cuda_global",  3000); 
     nvml_monitor_stop();
     double power1 = integral_power_consuming();
-    printf("average power usage is %.5f", power1);
+    printf("average power usage is %.5f\n", power1 - static_power);
     sleep(3);
+    
     nvml_monitor_start();
     test(ref, ref_nb, query, query_nb, dim, k, knn_dist, knn_index, &knn_cuda_texture, "knn_cuda_texture", 3000); 
     nvml_monitor_stop();
     double power2 = integral_power_consuming();
-    printf("average power usage is %.5f", power2);
+    printf("average power usage is %.5f\n", power2 -static_power);
+    
     sleep(3);
+
     nvml_monitor_start();
     test(ref, ref_nb, query, query_nb, dim, k, knn_dist, knn_index, &knn_cublas,       "knn_cublas",       3000); 
     nvml_monitor_stop();
     double power3 = integral_power_consuming();
-    printf("average power usage is %.5f", power3);
+    printf("average power usage is %.5f\n", power3 - static_power);
     nvml_api_close();
     
 
