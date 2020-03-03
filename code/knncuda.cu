@@ -313,7 +313,7 @@ bool knn_cuda_global(const float * ref,
     err2 = cudaMallocPitch((void**)&dist_dev,  &dist_pitch_in_bytes,  query_nb * size_of_float, ref_nb);
     err3 = cudaMallocPitch((void**)&index_dev, &index_pitch_in_bytes, query_nb * size_of_int,   k);
     if (err0 != cudaSuccess || err1 != cudaSuccess || err2 != cudaSuccess || err3 != cudaSuccess) {
-        printf("ERROR: Memory allocation error\n");
+        printf("ERROR: cuda gloabl Memory allocation error\n");
         cudaFree(ref_dev);
         cudaFree(query_dev);
         cudaFree(dist_dev);
@@ -457,7 +457,7 @@ bool knn_cuda_texture(const float * ref,
     err1 = cudaMallocPitch((void**)&dist_dev,  &dist_pitch_in_bytes,  query_nb * size_of_float, ref_nb);
     err2 = cudaMallocPitch((void**)&index_dev, &index_pitch_in_bytes, query_nb * size_of_int,   k);
     if (err0 != cudaSuccess || err1 != cudaSuccess || err2 != cudaSuccess) {
-        printf("ERROR: Memory allocation error (cudaMallocPitch)\n");
+        printf("ERROR: cduaTexture Memory allocation error (cudaMallocPitch)\n");
         cudaFree(query_dev);
         cudaFree(dist_dev);
         cudaFree(index_dev); 
@@ -661,7 +661,7 @@ bool knn_cublas(const float * ref,
     err4 = cudaMalloc((void**)&ref_norm_dev,   ref_nb   * size_of_float);
     err5 = cudaMalloc((void**)&query_norm_dev, query_nb * size_of_float);
     if (err0 != cudaSuccess || err1 != cudaSuccess || err2 != cudaSuccess || err3 != cudaSuccess || err4 != cudaSuccess || err5 != cudaSuccess) {
-        printf("ERROR: Memory allocation error\n");
+        printf("ERROR: cublas Memory allocation error\n");
         cudaFree(ref_dev);
         cudaFree(query_dev);
         cudaFree(dist_dev);
