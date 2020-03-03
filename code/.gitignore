@@ -1,3 +1,6 @@
 knncuda.o
 power.o
 test.o
+example.cc
+knn_tester.h
+test.cpp
