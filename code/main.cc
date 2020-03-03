@@ -272,7 +272,7 @@ bool test(const float *ref, int ref_nb, const float *query, int query_nb,
   //   float *test_knn_dist = (float *)malloc(query_nb * k * sizeof(float));
   //   int *test_knn_index = (int *)malloc(query_nb * k * sizeof(int));
 
-  Allocation check
+//   Allocation check
     if (!test_knn_dist || !test_knn_index) {
       printf("ALLOCATION ERROR\n");
       // free(test_knn_dist);
