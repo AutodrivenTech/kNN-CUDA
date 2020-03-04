@@ -389,60 +389,60 @@ int main(int argc, char *argv[]) {
   float *test_knn_dist = (float *)malloc(1800000 * sizeof(float));
   int *test_knn_index = (int *)malloc(800000 * sizeof(int));
 
-SAME_QUERY_SET_CUDA_GLOABL : {
-  std::cout << "same query set with cuda global" << std::endl;
-  if (file_exists("same_queryset_cuda_global.txt")) {
-    std::remove("same_queryset_cuda_global.txt");
-  }
+// SAME_QUERY_SET_CUDA_GLOABL : {
+//   std::cout << "same query set with cuda global" << std::endl;
+//   if (file_exists("same_queryset_cuda_global.txt")) {
+//     std::remove("same_queryset_cuda_global.txt");
+//   }
 
-  for (int i = 0; i < FLAGS_to; i++) {
-    int query_nb = 0;
-    if (!read_data(query, &query_nb, FLAGS_dataset_dir,
-                   "same_queryset_queryset.pcd")) {
-      std::cerr << "open file"
-                << "same_queryset_queryset.pcd"
-                << " failed" << std::endl;
-      return 0;
-    }
+//   for (int i = 0; i < FLAGS_to; i++) {
+//     int query_nb = 0;
+//     if (!read_data(query, &query_nb, FLAGS_dataset_dir,
+//                    "same_queryset_queryset.pcd")) {
+//       std::cerr << "open file"
+//                 << "same_queryset_queryset.pcd"
+//                 << " failed" << std::endl;
+//       return 0;
+//     }
 
-    int ref_nb = 0;
-    std::stringstream ss;
-    ss << std::setw(3) << std::setfill('0') << i + 1 << "_dataset.pcd";
-    std::string file_name = ss.str();
-    std::cout << "dataset file is " << file_name << std::endl;
-    if (!read_data(ref, &ref_nb, FLAGS_dataset_dir, file_name)) {
-      std::cerr << "open file" << file_name << " failed" << std::endl;
-      return 0;
-    }
+//     int ref_nb = 0;
+//     std::stringstream ss;
+//     ss << std::setw(3) << std::setfill('0') << i + 1 << "_dataset.pcd";
+//     std::string file_name = ss.str();
+//     std::cout << "dataset file is " << file_name << std::endl;
+//     if (!read_data(ref, &ref_nb, FLAGS_dataset_dir, file_name)) {
+//       std::cerr << "open file" << file_name << " failed" << std::endl;
+//       return 0;
+//     }
 
-    printf("Ground truth computation in progress...\n\n");
-    if (!knn_c(ref, ref_nb, query, query_nb, dim, k, knn_dist, knn_index)) {
-      // free(ref);
-      free(query);
-      free(knn_dist);
-      free(knn_index);
-      return EXIT_FAILURE;
-    }
+//     printf("Ground truth computation in progress...\n\n");
+//     if (!knn_c(ref, ref_nb, query, query_nb, dim, k, knn_dist, knn_index)) {
+//       // free(ref);
+//       free(query);
+//       free(knn_dist);
+//       free(knn_index);
+//       return EXIT_FAILURE;
+//     }
 
-    //   printf("TESTS\n");
-    auto test_res =
-        test(ref, ref_nb, query, query_nb, dim, k, knn_dist, knn_index,
-             test_knn_dist, test_knn_index, knn_cuda_global, "knn_cuda_global",
-             FLAGS_i, "same_queryset_cuda_global.txt");
-    if (!test_res) {
-      sleep(FLAGS_sleep_time);
-      goto SAME_QUERY_SET_CUDA_TEXTURE;
-    }
-    //   //   memset((void*)query, 0, sizeof(float)*80000);
-    //   free(query);
-    //   free(ref);
-    //   free(knn_dist);
-    //   free(knn_index);
-    std::cout << "sleep for " << std::to_string(FLAGS_sleep_time) << " s."
-              << std::endl;
-    sleep(FLAGS_sleep_time);
-  }
-}
+//     //   printf("TESTS\n");
+//     auto test_res =
+//         test(ref, ref_nb, query, query_nb, dim, k, knn_dist, knn_index,
+//              test_knn_dist, test_knn_index, knn_cuda_global, "knn_cuda_global",
+//              FLAGS_i, "same_queryset_cuda_global.txt");
+//     if (!test_res) {
+//       sleep(FLAGS_sleep_time);
+//       goto SAME_QUERY_SET_CUDA_TEXTURE;
+//     }
+//     //   //   memset((void*)query, 0, sizeof(float)*80000);
+//     //   free(query);
+//     //   free(ref);
+//     //   free(knn_dist);
+//     //   free(knn_index);
+//     std::cout << "sleep for " << std::to_string(FLAGS_sleep_time) << " s."
+//               << std::endl;
+//     sleep(FLAGS_sleep_time);
+//   }
+// }
 
 SAME_QUERY_SET_CUDA_TEXTURE : {
   std::cout << "same query set with cuda texture" << std::endl;
