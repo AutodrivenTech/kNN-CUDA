@@ -4,3 +4,7 @@ test.o
 example.cc
 knn_tester.h
 test.cpp
+same_dataset_cuda_global.txt
+same_dataset_cuda_textrue.txt
+same_queryset_cuda_global.txt
+same_queryset_cuda_texture.txt

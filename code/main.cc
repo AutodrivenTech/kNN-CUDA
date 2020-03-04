@@ -249,9 +249,12 @@ bool knn_c(const float *ref, int ref_nb, const float *query, int query_nb,
  * @param k              number of neighbors to consider
  * @param gt_knn_dist    ground truth distances
  * @param gt_knn_index   ground truth indexes
+ * @param test_knn_dist  pre allocated knn dist points
+ * @param test_knn_index pre-allocated knn index points
  * @param knn            function to test
  * @param name           name of the function to test (for display purpose)
  * @param nb_iterations  number of iterations
+ * @param data_filename      file_name of output data
  * return false in case of problem, true otherwise
  */
 bool test(const float *ref, int ref_nb, const float *query, int query_nb,
@@ -259,7 +262,7 @@ bool test(const float *ref, int ref_nb, const float *query, int query_nb,
           float *test_knn_dist, int *test_knn_index,
           bool (*knn)(const float *, int, const float *, int, int, int, float *,
                       int *),
-          const char *name, int nb_iterations) {
+          const char *name, int nb_iterations, const char *data_filename) {
   // Parameters
   const float precision = 0.001f;     // distance error max
   const float min_accuracy = 0.999f;  // percentage of correct values required
@@ -272,15 +275,17 @@ bool test(const float *ref, int ref_nb, const float *query, int query_nb,
   //   float *test_knn_dist = (float *)malloc(query_nb * k * sizeof(float));
   //   int *test_knn_index = (int *)malloc(query_nb * k * sizeof(int));
 
-//   Allocation check
-    if (!test_knn_dist || !test_knn_index) {
-      printf("ALLOCATION ERROR\n");
-      // free(test_knn_dist);
-      // free(test_knn_index);
-      return false;
-    }
+  //   Allocation check
+  if (!test_knn_dist || !test_knn_index) {
+    printf("ALLOCATION ERROR\n");
+    // free(test_knn_dist);
+    // free(test_knn_index);
+    return false;
+  }
+  double total_power = 0.0;
+  double usage_power = 0.0;
 
-  //   nvml_monitor_start();
+  nvml_monitor_start();
   // Start timer
   struct timeval tic;
   gettimeofday(&tic, NULL);
@@ -298,10 +303,10 @@ bool test(const float *ref, int ref_nb, const float *query, int query_nb,
   // Stop timer
   struct timeval toc;
   gettimeofday(&toc, NULL);
-  //   nvml_monitor_stop();
+  nvml_monitor_stop();
 
-  //   double total_power = integral_power_consuming();
-  //   double usage_power = total_power - static_power;
+  total_power = integral_power_consuming();
+  usage_power = total_power - static_power;
 
   // Elapsed time in ms
   double elapsed_time = toc.tv_sec - tic.tv_sec;
@@ -336,6 +341,19 @@ bool test(const float *ref, int ref_nb, const float *query, int query_nb,
     printf("FAILED\n");
   }
 
+  printf("Write result to data file....\n");
+
+  std::stringstream result;
+  result << ref_nb << "\t" << query_nb << "\t" << k << "\t"
+         << elapsed_time / nb_iterations << "\t" << static_power << "\t"
+         << usage_power << '\n';
+  std::cout << result.str();
+
+  std::ofstream file(data_filename, std::ios_base::app);
+  if (file.is_open()) {
+    file << result.str();
+  }
+
   // Free memory
   //   free(test_knn_dist);
   //   free(test_knn_index);
@@ -347,7 +365,14 @@ int main(int argc, char *argv[]) {
   const int k = 5;
   const int dim = 3;
   // start power monitor
-  // nvml_api_init();
+  nvml_api_init();
+
+  sleep(10);
+  printf("start monitoring static power\n");
+  nvml_monitor_start();
+  sleep(30);
+  nvml_monitor_stop();
+  static_power = integral_power_consuming();
 
   // same queryset
   float *query = (float *)malloc(800000 * sizeof(float));
@@ -358,9 +383,12 @@ int main(int argc, char *argv[]) {
   int *test_knn_index = (int *)malloc(800000 * sizeof(int));
 
   {
-    std::cout << "same query set" << std::endl;
+    std::cout << "same query set with cuda global" << std::endl;
+    if (file_exists("same_queryset_cuda_global.txt")) {
+      std::remove("same_queryset_cuda_global.txt");
+    }
 
-    for (int i = 6; i < 20; i++) {
+    for (int i = 0; i < 3; i++) {
       int query_nb = 0;
       if (!read_data(query, &query_nb, FLAGS_dataset_dir,
                      "same_queryset_queryset.pcd")) {
@@ -392,13 +420,161 @@ int main(int argc, char *argv[]) {
       //   printf("TESTS\n");
       test(ref, ref_nb, query, query_nb, dim, k, knn_dist, knn_index,
            test_knn_dist, test_knn_index, knn_cuda_global, "knn_cuda_global",
-           5);
+           100, "same_queryset_cuda_global.txt");
       //   //   memset((void*)query, 0, sizeof(float)*80000);
       //   free(query);
       //   free(ref);
       //   free(knn_dist);
       //   free(knn_index);
-      std::cout << "free finish!" << std::endl;
+      std::cout << "sleep for 10s" << std::endl;
+      sleep(10);
+    }
+  }
+
+  {
+    std::cout << "same query set with cuda texture" << std::endl;
+    if (file_exists("same_queryset_cuda_texture.txt")) {
+      std::remove("same_queryset_cuda_texture.txt");
+    }
+
+    for (int i = 0; i < 3; i++) {
+      int query_nb = 0;
+      if (!read_data(query, &query_nb, FLAGS_dataset_dir,
+                     "same_queryset_queryset.pcd")) {
+        std::cerr << "open file"
+                  << "same_queryset_queryset.pcd"
+                  << " failed" << std::endl;
+        return 0;
+      }
+
+      int ref_nb = 0;
+      std::stringstream ss;
+      ss << std::setw(3) << std::setfill('0') << i + 1 << "_dataset.pcd";
+      std::string file_name = ss.str();
+      std::cout << "dataset file is " << file_name << std::endl;
+      if (!read_data(ref, &ref_nb, FLAGS_dataset_dir, file_name)) {
+        std::cerr << "open file" << file_name << " failed" << std::endl;
+        return 0;
+      }
+
+      printf("Ground truth computation in progress...\n\n");
+      if (!knn_c(ref, ref_nb, query, query_nb, dim, k, knn_dist, knn_index)) {
+        // free(ref);
+        free(query);
+        free(knn_dist);
+        free(knn_index);
+        return EXIT_FAILURE;
+      }
+
+      //   printf("TESTS\n");
+      test(ref, ref_nb, query, query_nb, dim, k, knn_dist, knn_index,
+           test_knn_dist, test_knn_index, knn_cuda_texture, "knn_cuda_texture",
+           100, "same_queryset_cuda_texture.txt");
+      //   //   memset((void*)query, 0, sizeof(float)*80000);
+      //   free(query);
+      //   free(ref);
+      //   free(knn_dist);
+      //   free(knn_index);
+      std::cout << "sleep for 10 s" << std::endl;
+      sleep(10);
+    }
+  }
+
+  {
+    std::cout << "same data set with cuda global" << std::endl;
+    if (file_exists("same_dataset_cuda_global.txt")) {
+      std::remove("same_dataset_cuda_global.txt");
+    }
+
+    for (int i = 0; i < 3; i++) {
+      int ref_nb = 0;
+      if (!read_data(ref, &ref_nb, FLAGS_queryset_dir,
+                     "same_dataset_dataset.pcd")) {
+        std::cerr << "open file"
+                  << "same_dataset_dataset.pcd"
+                  << " failed" << std::endl;
+        return 0;
+      }
+
+      int query_nb = 0;
+      std::stringstream ss;
+      ss << std::setw(3) << std::setfill('0') << i + 1 << "_queryset.pcd";
+      std::string file_name = ss.str();
+      std::cout << "dataset file is " << file_name << std::endl;
+      if (!read_data(query, &query_nb, FLAGS_queryset_dir, file_name)) {
+        std::cerr << "open file" << file_name << " failed" << std::endl;
+        return 0;
+      }
+
+      printf("Ground truth computation in progress...\n\n");
+      if (!knn_c(ref, ref_nb, query, query_nb, dim, k, knn_dist, knn_index)) {
+        // free(ref);
+        free(query);
+        free(knn_dist);
+        free(knn_index);
+        return EXIT_FAILURE;
+      }
+
+      //   printf("TESTS\n");
+      test(ref, ref_nb, query, query_nb, dim, k, knn_dist, knn_index,
+           test_knn_dist, test_knn_index, knn_cuda_global, "knn_cuda_gloabl",
+           100, "same_dataset_cuda_global.txt");
+      //   //   memset((void*)query, 0, sizeof(float)*80000);
+      //   free(query);
+      //   free(ref);
+      //   free(knn_dist);
+      //   free(knn_index);
+      std::cout << "sleep for 10 s" << std::endl;
+      sleep(10);
+    }
+  }
+
+  {
+    std::cout << "same data set with cuda texture" << std::endl;
+    if (file_exists("same_dataset_cuda_texture.txt")) {
+      std::remove("same_dataset_cuda_texture.txt");
+    }
+
+    for (int i = 0; i < 3; i++) {
+      int ref_nb = 0;
+      if (!read_data(ref, &ref_nb, FLAGS_queryset_dir,
+                     "same_dataset_dataset.pcd")) {
+        std::cerr << "open file"
+                  << "same_dataset_dataset.pcd"
+                  << " failed" << std::endl;
+        return 0;
+      }
+
+      int query_nb = 0;
+      std::stringstream ss;
+      ss << std::setw(3) << std::setfill('0') << i + 1 << "_queryset.pcd";
+      std::string file_name = ss.str();
+      std::cout << "dataset file is " << file_name << std::endl;
+      if (!read_data(query, &query_nb, FLAGS_queryset_dir, file_name)) {
+        std::cerr << "open file" << file_name << " failed" << std::endl;
+        return 0;
+      }
+
+      printf("Ground truth computation in progress...\n\n");
+      if (!knn_c(ref, ref_nb, query, query_nb, dim, k, knn_dist, knn_index)) {
+        // free(ref);
+        free(query);
+        free(knn_dist);
+        free(knn_index);
+        return EXIT_FAILURE;
+      }
+
+      //   printf("TESTS\n");
+      test(ref, ref_nb, query, query_nb, dim, k, knn_dist, knn_index,
+           test_knn_dist, test_knn_index, knn_cuda_texture, "knn_cuda_texture",
+           100, "same_dataset_cuda_texture.txt");
+      //   //   memset((void*)query, 0, sizeof(float)*80000);
+      //   free(query);
+      //   free(ref);
+      //   free(knn_dist);
+      //   free(knn_index);
+      std::cout << "sleep for 10 s" << std::endl;
+      sleep(10);
     }
   }
 
@@ -410,7 +586,7 @@ int main(int argc, char *argv[]) {
   //        "knn_cublas", 500);
 
   // close power monitor
-  // nvml_api_close();
+  //   nvml_api_close();
   free(ref);
   free(query);
   free(knn_dist);
