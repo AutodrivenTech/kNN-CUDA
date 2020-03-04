@@ -365,6 +365,8 @@ bool test(const float *ref, int ref_nb, const float *query, int query_nb,
 }
 
 int main(int argc, char *argv[]) {
+  gflags::ParseCommandLineFlags(&argc, &argv, true);
+
   const int k = 5;
   const int dim = 3;
   // start power monitor
