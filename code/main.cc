@@ -29,6 +29,7 @@ DEFINE_string(queryset_dir, "/tmp/same_dataset",
               "The directory path of queryset data");
 DEFINE_int32(sleep_time, 10, "the sleep time between each selection");
 DEFINE_int32(to, 20, "to id");
+DEFINE_int32(i, 100, "iteriation time.");
 
 namespace fs = std::filesystem;
 double static_power = 0.0;
@@ -369,12 +370,14 @@ int main(int argc, char *argv[]) {
   // start power monitor
   nvml_api_init();
 
-  sleep(10);
+  sleep(3);
   printf("start monitoring static power\n");
   nvml_monitor_start();
   sleep(30);
   nvml_monitor_stop();
   static_power = integral_power_consuming();
+  printf("static power is %4.5f w\n", static_power);
+  printf("\n");
 
   // same queryset
   float *query = (float *)malloc(800000 * sizeof(float));
@@ -423,7 +426,7 @@ SAME_QUERY_SET_CUDA_GLOABL : {
     auto test_res =
         test(ref, ref_nb, query, query_nb, dim, k, knn_dist, knn_index,
              test_knn_dist, test_knn_index, knn_cuda_global, "knn_cuda_global",
-             100, "same_queryset_cuda_global.txt");
+             FLAGS_i, "same_queryset_cuda_global.txt");
     if (!test_res) {
       sleep(FLAGS_sleep_time);
       goto SAME_QUERY_SET_CUDA_TEXTURE;
@@ -478,7 +481,7 @@ SAME_QUERY_SET_CUDA_TEXTURE : {
     auto test_res =
         test(ref, ref_nb, query, query_nb, dim, k, knn_dist, knn_index,
              test_knn_dist, test_knn_index, knn_cuda_texture,
-             "knn_cuda_texture", 100, "same_queryset_cuda_texture.txt");
+             "knn_cuda_texture", FLAGS_i, "same_queryset_cuda_texture.txt");
     if (!test_res) {
       sleep(FLAGS_sleep_time);
       goto SAME_DATA_SET_CUDA_GLOBAL;
@@ -533,7 +536,7 @@ SAME_DATA_SET_CUDA_GLOBAL : {
     auto test_res =
         test(ref, ref_nb, query, query_nb, dim, k, knn_dist, knn_index,
              test_knn_dist, test_knn_index, knn_cuda_global, "knn_cuda_gloabl",
-             100, "same_dataset_cuda_global.txt");
+             FLAGS_i, "same_dataset_cuda_global.txt");
     if (!test_res) {
       sleep(FLAGS_sleep_time);
       goto SAME_DATA_SET_CUDA_TEXTURE;
@@ -588,7 +591,7 @@ SAME_DATA_SET_CUDA_TEXTURE : {
     auto test_res =
         test(ref, ref_nb, query, query_nb, dim, k, knn_dist, knn_index,
              test_knn_dist, test_knn_index, knn_cuda_texture,
-             "knn_cuda_texture", 100, "same_dataset_cuda_texture.txt");
+             "knn_cuda_texture", FLAGS_i, "same_dataset_cuda_texture.txt");
     if (!test_res) {
       sleep(FLAGS_sleep_time);
       goto FREE_SCOPE;
