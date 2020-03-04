@@ -348,7 +348,7 @@ bool test(const float *ref, int ref_nb, const float *query, int query_nb,
 
   std::stringstream result;
   result << ref_nb << "\t" << query_nb << "\t" << k << "\t"
-         << elapsed_time / nb_iterations << "\t" << static_power << "\t"
+         << elapsed_time / nb_iterations * 1000.0 << "\t" << static_power << "\t"
          << usage_power << '\n';
   std::cout << result.str();
 
