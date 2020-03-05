@@ -1,9 +1,13 @@
 knncuda.o
 power.o
 test.o
+test_release.o
+knncuda_release.o
+power_release.o
 example.cc
 knn_tester.h
 test.cpp
+test_release
 same_dataset_cuda_global.txt
 same_dataset_cuda_textrue.txt
 same_queryset_cuda_global.txt
